@@ -11,3 +11,7 @@
 
 .settings
 target
+
+/WEB-INF/classes/META-INF
+
+/test.properties
