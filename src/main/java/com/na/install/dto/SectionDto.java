@@ -15,6 +15,17 @@ import java.util.List;
  */
 public class SectionDto {
 	
+	/** */
+	public SectionDto() {
+		
+	}
+	
+	/** */
+	public SectionDto(String name) {
+		this();
+		setName(name);
+	}
+	
 	private String name;
 	
 	private Collection<ParamDto> params = new ArrayList<ParamDto>();
