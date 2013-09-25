@@ -5,6 +5,8 @@ package com.na.install;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -44,36 +46,39 @@ public class InstallationWizard {
 	ServletContext context;
 	
 	/**
+	 * @throws URISyntaxException 
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ConfigurationDto cfgStructure() {
-		
+	public Response cfgStructure() throws URISyntaxException {
+		if(propsHelepr.exist(getPathToProperties(), PROPERTIES_FILE)){
+			return Response.seeOther(new URI("../index.jsp")).build();
+		}
 		ConfigurationDto cfg = createConfigurationDto();
 		
-		return cfg;
+		return Response.ok(cfg).build();
 	}
 	
 	/**
-	 * @throws IOException
-	 * @throws FileNotFoundException
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response saveConfig(ConfigurationDto newCfg) throws FileNotFoundException, IOException {
+	public Response saveConfig(ConfigurationDto newCfg) throws FileNotFoundException, IOException, URISyntaxException {
+		if(propsHelepr.exist(getPathToProperties(), PROPERTIES_FILE)){
+			Response.seeOther(new URI("../index.jsp"));
+		}
 		
 		Properties props = new Properties();
 		for (SectionDto section : newCfg.getSections()) {
 			for (ParamDto param : section.getParams()) {
 				props.setProperty(param.getName(), param.getValue());
-				log.debug(String.format("Saving property % with value %.", param.getName(),
+				log.debug(String.format("Saving property %s with value %s.", param.getName(),
 						param.getValue()));
 			}
 		}
 		
 		propsHelepr.saveProperties(props, getPathToProperties(), PROPERTIES_FILE);
 		
-		// return Response.seeOther(uri).build();
 		return Response.ok().build();
 	}
 	
@@ -93,6 +98,7 @@ public class InstallationWizard {
 		section.getParams()
 				.add(new ParamDto("bugzilla.datasource.jndi", "java:comp/env/jdbc/mysql/bugzilla",
 						false));
+		cfg.getSections().add(section);
 		return cfg;
 	}
 }

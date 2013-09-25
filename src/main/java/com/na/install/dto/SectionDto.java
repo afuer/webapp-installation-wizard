@@ -5,7 +5,8 @@ package com.na.install.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * A collection of conceptually similar parameters.
@@ -13,6 +14,7 @@ import java.util.List;
  * @author marian
  * 
  */
+@XmlRootElement
 public class SectionDto {
 	
 	/** */
@@ -56,7 +58,7 @@ public class SectionDto {
 	 * @param params
 	 *            the params to set
 	 */
-	public void setParams(List<ParamDto> params) {
+	public void setParams(Collection<ParamDto> params) {
 		this.params = params;
 	}
 }
