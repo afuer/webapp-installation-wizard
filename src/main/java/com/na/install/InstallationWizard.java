@@ -3,9 +3,7 @@
  */
 package com.na.install;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -33,13 +31,14 @@ import com.na.install.dto.SectionDto;
 @Path("initialization")
 public class InstallationWizard {
 	
-	public static final String SEPARATOR = System.getProperty("file.separator");
-	public static final String PROPERTIES_SUBPATH = "META-INF" + SEPARATOR;
+	public static final String PROPERTIES_SUBPATH = "META-INF" + PropertiesHelper.SEPARATOR;
 	public static final String PROPERTIES_FILE = "application.properties";
 	public static final String PROPERTIES_RESOURCES = "classpath*:" + PROPERTIES_SUBPATH
 			+ PROPERTIES_FILE;
 	
-	private static final Logger log = LoggerFactory.getLogger(InstallationWizard.class);
+	static final Logger log = LoggerFactory.getLogger(InstallationWizard.class);
+	
+	private PropertiesHelper propsHelepr = new PropertiesHelper();
 	
 	@Context
 	ServletContext context;
@@ -48,9 +47,7 @@ public class InstallationWizard {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ConfigurationDto cfgStructure(){
-		
-
+	public ConfigurationDto cfgStructure() {
 		
 		ConfigurationDto cfg = createConfigurationDto();
 		
@@ -69,28 +66,20 @@ public class InstallationWizard {
 		for (SectionDto section : newCfg.getSections()) {
 			for (ParamDto param : section.getParams()) {
 				props.setProperty(param.getName(), param.getValue());
+				log.debug(String.format("Saving property % with value %.", param.getName(),
+						param.getValue()));
 			}
 		}
 		
-		saveProperties(props);
+		propsHelepr.saveProperties(props, getPathToProperties(), PROPERTIES_FILE);
 		
 		// return Response.seeOther(uri).build();
 		return Response.ok().build();
 	}
 	
-	private void saveProperties(Properties props) throws IOException, FileNotFoundException {
-		String path = context.getRealPath("/") + "WEB-INF" + SEPARATOR + "classes" + SEPARATOR
+	private String getPathToProperties() {
+		return context.getRealPath("/") + "WEB-INF" + PropertiesHelper.SEPARATOR + "classes" + PropertiesHelper.SEPARATOR
 				+ PROPERTIES_SUBPATH;
-		log.info("Real path: " + path);
-		File directory = new File(path);
-		if (!directory.exists()) {
-			if (!directory.mkdir()) {
-				throw new RuntimeException("The directory for the properties is not accessible: "
-						+ path);
-			}
-		}
-		
-		props.store(new FileOutputStream(path + PROPERTIES_FILE), null);
 	}
 	
 	private ConfigurationDto createConfigurationDto() {
