@@ -4,3 +4,14 @@
 *.jar
 *.war
 *.ear
+
+.classpath
+
+.project
+
+.settings
+target
+
+/WEB-INF/classes/META-INF
+
+/test.properties
