@@ -19,7 +19,9 @@ public interface Integrator {
 	
 	/**
 	 * The returned URI will be used to redirect the user when he is accessing
-	 * wizard resources and the application is already installed/initialized.
+	 * wizard resources and the application is already installed/initialized. A
+	 * relative URI (from the location of Installation Wizard rest services) can
+	 * be used.
 	 */
 	public URI getUriForRedirection();
 	

@@ -96,9 +96,13 @@ public class InstallationWizard {
 		for (SectionDto section : newCfg.getSections()) {
 			for (ParamDto param : section.getParams()) {
 				if (StringUtils.isNotBlank(param.getName())) {
-					props.setProperty(param.getName(), param.getValue());
-					log.debug(String.format("Saving property %s with value %s.", param.getName(),
-							param.getValue()));
+					String value = param.getValue();
+					if (value == null) {
+						value = "";
+					}
+					props.setProperty(param.getName(), value);
+					log.debug(String.format("Saving property '%s' with value '%s'.",
+							param.getName(), value));
 				}
 			}
 		}
