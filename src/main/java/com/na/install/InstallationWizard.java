@@ -57,6 +57,7 @@ public class InstallationWizard {
 	
 	public static final String PROPERTIES_SUBPATH = "META-INF" + PropertiesHelper.SEPARATOR;
 	public static final String PROPERTIES_FILE = "application.properties";
+	/** Where the properties are saved. */
 	public static final String PROPERTIES_RESOURCES = "classpath*:" + PROPERTIES_SUBPATH
 			+ PROPERTIES_FILE;
 	
