@@ -1,50 +1,41 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<script
-	src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script type="text/javascript">
-	function save() {
-
-		var params = [ {
-			"name" : "bugzilla.db.driver",
-			"value" : "com.mysql.jdbc.Driver"
-		}, {
-			"name" : "bugzilla.db.url",
-			"value" : "com.mysql.jdbc.Driver"
-		}, {
-			"name" : "bugzilla.db.username",
-			"value" : "bugs"
-		}, {
-			"name" : "bugzilla.db.password",
-			"value" : ""
-		}, ]
-
-		var section = {
-			"name" : "test",
-			"params" : params
-		}
-
-		var json = {
-			"sections" : [ section ]
-		};
-
-		$.ajax({
-			url : "http://localhost:8080/mapper/rest/wizard/initialization",
-			type : "PUT",
-			data : JSON.stringify(json),
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function() {
-				alert("Configuration saved: " + data);
-			}
-		});
-	}
-</script>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="mustache.js"></script>
+	<script src="wizard.js"></script>	
 </head>
 <body>
 	<h1>WebApp Installation Wizard</h1>
-
-	<button onclick="save()">Save Configuration</button>
+	
+	<textarea class="template" style="display:none">
+		<button id="prev-section" onclick="prevSection()" disabled="true">prev</button>
+		<button id="next-section" onclick="nextSection()">next</button>
+		<button id="save" onclick="save()" style="display: none">Save Configuration</button>
+		{{#sections}}
+			{{#first}} 
+			<div id="section-{{id}}">
+			{{/first}}
+			{{^first}} 
+			<div id="section-{{id}}" style="display:none">
+			{{/first}}				
+				<h3>{{name}}</h3>
+				<table>
+					{{#params}}
+					<tr>
+						<td>{{name}}{{#mandatory}} *{{/mandatory}}</td>
+						<td><input id="{{name}}" value="{{defaultValue}}" size="100"/></td>
+					</tr>
+					{{/params}}					
+				</table>
+			</div>
+		{{/sections}}		
+	</textarea>
+	
+	<div id="box">
+	</div>
+		
 </body>
 </html>
+
