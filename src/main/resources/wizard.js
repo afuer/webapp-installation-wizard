@@ -1,6 +1,5 @@
 var activeSection = 0;
 var sectionCount = 0;
-var config = null;
 $(function() {
 	$.ajax({
 		url : "rest/initialization",
@@ -26,8 +25,6 @@ function preprocessConfig(data) {
 	for (i = 0; i < data.sections.length; i++){
 		data.sections[i].id = i;
 	}
-	
-	config = data;
 }
 
 function nextSection() {
