@@ -55,7 +55,7 @@ function prevSection() {
 function save() {	
 	var params = [];
 	$("input").each(function(i, input){
-		params.push({ "name": $(input).attr("id"), "value": $(input).attr("value") });
+		params.push({ "name": $(input).attr("id"), "value": $(input).val() });
 	});
 	
 	var json = {};
