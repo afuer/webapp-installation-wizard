@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Iterables;
 import com.na.install.dto.ConfigurationDto;
 import com.na.install.dto.ParamDto;
+import com.na.install.dto.RedirectDto;
 import com.na.install.dto.SectionDto;
 import com.na.install.integration.Integrator;
 
@@ -36,6 +37,8 @@ import com.na.install.integration.Integrator;
 @Path("initialization")
 public class InstallationWizard {
 	
+	private static final int HTTP_PARTIAL_CONTENT = 206;
+	
 	/** Loads instance of Integrator using reflection. */
 	public InstallationWizard() throws InstantiationException, IllegalAccessException {
 		String packageToScan = "com.na.install";
@@ -43,8 +46,9 @@ public class InstallationWizard {
 		Set<Class<? extends Integrator>> implementations = new Reflections(packageToScan)
 				.getSubTypesOf(Integrator.class);
 		if (implementations == null || implementations.size() == 0) {
-			throw new RuntimeException(String.format("Didn't find implementation of %s in package %s.",
-					Integrator.class.getName(), packageToScan));
+			throw new RuntimeException(String.format(
+					"Didn't find implementation of %s in package %s.", Integrator.class.getName(),
+					packageToScan));
 		}
 		
 		if (implementations.size() > 1) {
@@ -84,6 +88,7 @@ public class InstallationWizard {
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response saveConfig(ConfigurationDto newCfg) throws FileNotFoundException, IOException,
 			URISyntaxException {
 		if (propsHelepr.exist(getPathToProperties(), PROPERTIES_FILE)) {
@@ -101,11 +106,13 @@ public class InstallationWizard {
 		
 		propsHelepr.saveProperties(props, getPathToProperties(), PROPERTIES_FILE);
 		
-		return Response.ok().build();
+		return createRedicrectResponse();
 	}
 	
 	private Response createRedicrectResponse() {
-		return Response.seeOther(integrator.getUriForRedirection()).build();
+		RedirectDto redirect = new RedirectDto();
+		redirect.setPath(integrator.getUriForRedirection().toString());
+		return Response.status(HTTP_PARTIAL_CONTENT).entity(redirect).build();
 	}
 	
 	private String getPathToProperties() {

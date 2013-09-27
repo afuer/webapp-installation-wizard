@@ -6,15 +6,20 @@ $(function() {
 		type : "GET",
 		contentType : "application/json; charset=utf-8",
 		dataType : "json",
-		success : function(data) {
-			preprocessConfig(data);		
-			
-			var html, json, template;
-			template = $('.template').val();
-			json = data;
-			html = Mustache.to_html(template, json).replace(/^\s*/mg, '');
-			
-			$("#box").html(html);
+		success : function(data, status, jqXHR) {
+			if (jqXHR.status == 206) {
+				redirect(data.path);
+			}
+			else {
+				preprocessConfig(data);		
+				
+				var html, json, template;
+				template = $('.template').val();
+				json = data;
+				html = Mustache.to_html(template, json).replace(/^\s*/mg, '');
+				
+				$("#box").html(html);
+			}
 		}
 	});
 });	
@@ -67,11 +72,20 @@ function save() {
 		data : JSON.stringify(json),
 		contentType : "application/json; charset=utf-8",
 		dataType : "json",
-		success : function() {
-			alert("Configuration saved: " + data);
+		success : function(data) {
+			redirect(data.path);
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			alert(textStatus + ": " + errorThrown);
+			$("#error").html(jqXHR.responseText);
 		}
 	});
+}
+
+function redirect(path) {
+	if (path.indexOf("../") == 0) {
+		window.location.href = window.location.href + path;
+	}
+	else {
+		window.location.href = path;
+	}
 }
