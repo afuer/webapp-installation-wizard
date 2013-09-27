@@ -19,6 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +44,9 @@ public class InstallationWizard {
 		Set<Class<? extends Integrator>> implementations = new Reflections(packageToScan)
 				.getSubTypesOf(Integrator.class);
 		if (implementations == null || implementations.size() == 0) {
-			throw new RuntimeException(String.format("Didn't find implementation of %s in package %s.",
-					Integrator.class.getName(), packageToScan));
+			throw new RuntimeException(String.format(
+					"Didn't find implementation of %s in package %s.", Integrator.class.getName(),
+					packageToScan));
 		}
 		
 		if (implementations.size() > 1) {
@@ -55,6 +57,7 @@ public class InstallationWizard {
 	
 	public static final String PROPERTIES_SUBPATH = "META-INF" + PropertiesHelper.SEPARATOR;
 	public static final String PROPERTIES_FILE = "application.properties";
+	/** Where the properties are saved. */
 	public static final String PROPERTIES_RESOURCES = "classpath*:" + PROPERTIES_SUBPATH
 			+ PROPERTIES_FILE;
 	
@@ -93,9 +96,15 @@ public class InstallationWizard {
 		Properties props = new Properties();
 		for (SectionDto section : newCfg.getSections()) {
 			for (ParamDto param : section.getParams()) {
-				props.setProperty(param.getName(), param.getValue());
-				log.debug(String.format("Saving property %s with value %s.", param.getName(),
-						param.getValue()));
+				if (StringUtils.isNotBlank(param.getName())) {
+					String value = param.getValue();
+					if (value == null) {
+						value = "";
+					}
+					props.setProperty(param.getName(), value);
+					log.debug(String.format("Saving property '%s' with value '%s'.",
+							param.getName(), value));
+				}
 			}
 		}
 		
