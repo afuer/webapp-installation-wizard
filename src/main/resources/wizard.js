@@ -69,6 +69,9 @@ function save() {
 		dataType : "json",
 		success : function() {
 			alert("Configuration saved: " + data);
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			alert(textStatus + ": " + errorThrown);
 		}
 	});
 }
