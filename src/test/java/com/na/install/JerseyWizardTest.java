@@ -35,7 +35,7 @@ public class JerseyWizardTest extends JerseyTest {
 	@BeforeClass
 	public static void beforeClass() throws IOException {
 		File f = new File("WEB-INF");
-		if(!f.exists()) {
+		if (!f.exists()) {
 			f.mkdir();
 			f = new File("WEB-INF/classes");
 			f.mkdir();
@@ -43,7 +43,7 @@ public class JerseyWizardTest extends JerseyTest {
 		}
 		
 		f = new File("WEB-INF/classes/META-INF");
-		if(f.exists()) {
+		if (f.exists()) {
 			FileUtils.deleteDirectory(f);
 		}
 	}
@@ -69,7 +69,7 @@ public class JerseyWizardTest extends JerseyTest {
 		/* @formatter:off */
 		RestAssured
 			.expect()
-				.statusCode(200)
+				.statusCode(206)
 			.given()
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(cfg)
@@ -78,14 +78,14 @@ public class JerseyWizardTest extends JerseyTest {
 		
 		RestAssured
 			.expect()
-				.statusCode(404)
+				.statusCode(206)
 			.given()
 				.header("Accept", MediaType.APPLICATION_JSON)
 			.when()
 				.get("/initialization");
 		/* @formatter:on */
 	}
-
+	
 	private ConfigurationDto createConfig() {
 		ConfigurationDto cfg = new ConfigurationDto();
 		SectionDto section = new SectionDto("Section 1");
