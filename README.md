@@ -74,6 +74,8 @@ In order to incorporate the WebApp Installation Wizard into an application a num
 		<url-pattern>/wizard/rest/*</url-pattern>
 	</servlet-mapping>
 ```
+
+
 There are some steps that are not mandatory but are recommended since they handle errors that may occur
 when an application container tries to start services that depends on properties that should be set by the
 WebApp Installation Wizard, e.g. a servlet uses data source that is defined during installation and hence
