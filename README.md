@@ -1,10 +1,9 @@
-webapp-installation-wizard
-==========================
-
 WebApp Installation Wizard
+==========================
 
 
 1. Introduction
+----------------
 
 WebApp Installation Wizard is a library that provides an installation procedure for web applications.
 There is a configurable wizard that allows to set textual properties which are then available in the real 
@@ -14,21 +13,22 @@ only for the first execution of the real application. For the subsequent executi
 a configured URL, intentionally main URL of the real application.
 
 2. Usage
+----------------
 
 In order to incorporate the WebApp Installation Wizard into an application a number of steps shall be performed:
 
  * Add dependency to the WebApp Installation Wizard. In the case of applications managed by Apache Maven following
  lines should be added to the pom.xml file:
-
+```
 		<dependency>
 			<groupId>com.networkedassets</groupId>
 			<artifactId>webapp-installation-wizard</artifactId>
 			<version>0.1<version>
 		</dependency>
-		
+```	
  * Implement the com.na.install.integration.Integrator interface and put it into com.na.install package 
  (or one of its subpackages). The implementation can look as follows:
- 
+``` 
  public class InstallationWizardIntegration implements Integrator {
 	
 	static final String ADMIN_PASS = "admin.pass";
@@ -56,9 +56,9 @@ In order to incorporate the WebApp Installation Wizard into an application a num
 	}
 	
  }
-
+```
  * Configure the WebApp Installation Wizard servlet in your web.xml file:
- 
+``` 
    <servlet>
 		<servlet-name>NetworkedAssets Installation Wizard</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
@@ -73,7 +73,7 @@ In order to incorporate the WebApp Installation Wizard into an application a num
 		<servlet-name>NetworkedAssets Installation Wizard</servlet-name>
 		<url-pattern>/wizard/rest/*</url-pattern>
 	</servlet-mapping>
-
+```
 There are some steps that are not mandatory but are recommended since they handle errors that may occur
 when an application container tries to start services that depends on properties that should be set by the
 WebApp Installation Wizard, e.g. a servlet uses data source that is defined during installation and hence
@@ -85,7 +85,7 @@ from start:
   
   * Implement org.springframework.web.WebApplicationInitializer to start the removed from web.xml services
   dynamically (it's Servlet 3.0 feature):
-  
+```  
   public class CustomWebAppInitializer implements WebApplicationInitializer {
 	
 	static final Logger log = LoggerFactory.getLogger(CustomWebAppInitializer.class);
@@ -121,9 +121,9 @@ from start:
 	}
 	
  }
-
+```
  * The CustomWebAppInitializer class uses a helper for properties related operations, i.e. the PropertiesWrapper:
- 
+``` 
  public class PropertiesWrapper {
 	
 	/** Additional, optional properties location */
@@ -146,5 +146,4 @@ from start:
 	
 	....
  }
-	
-	
+```	
