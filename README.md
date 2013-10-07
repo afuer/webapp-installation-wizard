@@ -55,7 +55,7 @@ In order to incorporate the WebApp Installation Wizard into an application a num
 		return cfg;
 	}
 	
-}
+ }
 
  * Configure the WebApp Installation Wizard servlet in your web.xml file:
  
@@ -74,10 +74,77 @@ In order to incorporate the WebApp Installation Wizard into an application a num
 		<url-pattern>/wizard/rest/*</url-pattern>
 	</servlet-mapping>
 
-There are some steps that are not mandatory but are recommended since the handles errors that may occur
+There are some steps that are not mandatory but are recommended since they handle errors that may occur
 when an application container tries to start services that depends on properties that should be set by the
 WebApp Installation Wizard, e.g. a servlet uses data source that is defined during installation and hence
 is not configured during the first start. The following optional steps prevents the not configured services 
 from start:
 
-  * 
+  * Remove the servlets, context-params, listeners and filters that should not be started during first run from your 
+  web.xml file.
+  
+  * Implement org.springframework.web.WebApplicationInitializer to start the removed from web.xml services
+  dynamically (it's Servlet 3.0 feature):
+  
+  public class CustomWebAppInitializer implements WebApplicationInitializer {
+	
+	static final Logger log = LoggerFactory.getLogger(CustomWebAppInitializer.class);
+	private PropertiesWrapper propsWrapper = new PropertiesWrapper();
+	
+	@Override
+	public void onStartup(ServletContext servletContext) throws ServletException {
+		if (propsWrapper.propertiesExists()) {
+			XmlWebApplicationContext rootContext = new XmlWebApplicationContext();
+			
+			//context-param
+			rootContext.setConfigLocations(new String[] { "classpath*:SpringContext.xml" });
+			
+			//listeners
+			servletContext.addListener(new org.springframework.web.context.ContextLoaderListener(
+					rootContext));
+			servletContext
+					.addListener(new org.springframework.web.context.request.RequestContextListener());
+			
+			//servlet, REST services
+			ServletRegistration.Dynamic rest = servletContext.addServlet("REST services",
+					com.sun.jersey.spi.spring.container.servlet.SpringServlet.class);
+			rest.setInitParameter("com.sun.jersey.config.property.packages", "com.na");
+			
+			//servlet-mapping
+			rest.addMapping("/rest/*");
+			
+			//filter
+			servletContext.addFilter("springSecurityFilterChain",
+					org.springframework.web.filter.DelegatingFilterProxy.class)
+					.addMappingForUrlPatterns(null, false, "/*");
+		}
+	}
+	
+ }
+
+ * The CustomWebAppInitializer class uses a helper for properties related operations, i.e. the PropertiesWrapper:
+ 
+ public class PropertiesWrapper {
+	
+	/** Additional, optional properties location */
+	public static final String ALTERNATIVE_PROPERTIES_LOCATION = ""
+			+ System.getProperty("catalina.base") + "/conf/application.properties";
+			
+	final static String PATH_TO_PROPERTIES = InstallationWizard.PROPERTIES_SUBPATH
+			+ InstallationWizard.PROPERTIES_FILE;
+			
+	boolean propertiesExists() {
+		InputStream inputStream = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream(PATH_TO_PROPERTIES);
+		if (inputStream != null) {
+			return true;
+		}
+		
+		File f = new File(ALTERNATIVE_PROPERTIES_LOCATION);
+		return f.exists();
+	}
+	
+	....
+ }
+	
+	
