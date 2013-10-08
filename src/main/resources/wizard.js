@@ -1,8 +1,9 @@
 var activeSection = 0;
 var sectionCount = 0;
+var restUrl = "rest/initialization";
 $(function() {
 	$.ajax({
-		url : "rest/initialization",
+		url : restUrl,
 		type : "GET",
 		contentType : "application/json; charset=utf-8",
 		dataType : "json",
@@ -67,18 +68,30 @@ function save() {
 	json.sections = [{"name": "whatever", "params": params}];
 	
 	$.ajax({
-		url : "rest/initialization",
+		url : restUrl,
 		type : "PUT",
 		data : JSON.stringify(json),
 		contentType : "application/json; charset=utf-8",
 		dataType : "json",
 		success : function(data) {
-			redirect(data.path);
+			showRedirectBox(data.path);
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			$("#error").html(jqXHR.responseText);
 		}
 	});
+}
+
+function showRedirectBox(path) {
+	if (path.indexOf("../") == 0) {
+		var href = window.location.href + path;
+	}
+	else {
+		var href = path;
+	}
+	$("#redirect a").attr("href", href);
+	$("#box").toggle();
+	$("#redirect").toggle();
 }
 
 function redirect(path) {
