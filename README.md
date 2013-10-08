@@ -79,7 +79,7 @@ In order to incorporate the WebApp Installation Wizard into an application a num
 There are some steps that are not mandatory but are recommended since they handle errors that may occur
 when an application container tries to start services that depends on properties that should be set by the
 WebApp Installation Wizard, e.g. a servlet uses data source that is defined during installation and hence
-is not configured during the first start. The following optional steps prevents the not configured services 
+is not configured during the first start. The following optional steps prevent the not configured services 
 from start:
 
  * Remove the servlets, context-params, listeners and filters that should not be started during first run from your 
