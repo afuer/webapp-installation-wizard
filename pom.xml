@@ -3,7 +3,7 @@
 
 	<groupId>com.networkedassets</groupId>
 	<artifactId>webapp-installation-wizard</artifactId>
-	<version>0.1</version>
+	<version>0.2-SNAPSHOT</version>
 	<name>WebApp Installation Wizard</name>
 	<description>WebApp Installation Wizard</description>
 	<packaging>jar</packaging>
