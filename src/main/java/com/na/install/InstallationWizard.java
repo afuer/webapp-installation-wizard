@@ -52,44 +52,41 @@ import com.na.install.integration.Integrator;
  */
 @Path("initialization")
 public class InstallationWizard {
-
+	
 	private static final int HTTP_PARTIAL_CONTENT = 206;
-
+	
 	/** Loads instance of Integrator using reflection. */
-	public InstallationWizard() throws InstantiationException,
-			IllegalAccessException {
+	public InstallationWizard() throws InstantiationException, IllegalAccessException {
 		String packageToScan = "com.na.install";
-
-		Set<Class<? extends Integrator>> implementations = new Reflections(
-				packageToScan).getSubTypesOf(Integrator.class);
+		
+		Set<Class<? extends Integrator>> implementations = new Reflections(packageToScan)
+				.getSubTypesOf(Integrator.class);
 		if (implementations == null || implementations.size() == 0) {
 			throw new RuntimeException(String.format(
-					"Didn't find implementation of %s in package %s.",
-					Integrator.class.getName(), packageToScan));
+					"Didn't find implementation of %s in package %s.", Integrator.class.getName(),
+					packageToScan));
 		}
-
+		
 		if (implementations.size() > 1) {
-			log.warn("There are several implementations of "
-					+ Integrator.class.getName());
+			log.warn("There are several implementations of " + Integrator.class.getName());
 		}
 		this.integrator = Iterables.get(implementations, 0).newInstance();
 	}
-
-	public static final String PROPERTIES_SUBPATH = "META-INF"
-			+ PropertiesHelper.SEPARATOR;
+	
+	public static final String PROPERTIES_SUBPATH = "META-INF" + PropertiesHelper.SEPARATOR;
 	public static final String PROPERTIES_FILE = "application.properties";
 	/** Where the properties are saved. */
-	public static final String PROPERTIES_RESOURCES = "classpath*:"
-			+ PROPERTIES_SUBPATH + PROPERTIES_FILE;
-
+	public static final String PROPERTIES_RESOURCES = "classpath*:" + PROPERTIES_SUBPATH
+			+ PROPERTIES_FILE;
+	
 	static final Logger log = LoggerFactory.getLogger(InstallationWizard.class);
-
+	
 	private PropertiesHelper propsHelepr = new PropertiesHelper();
 	private Integrator integrator;
-
+	
 	@Context
 	ServletContext context;
-
+	
 	/**
 	 * @throws URISyntaxException
 	 */
@@ -100,21 +97,21 @@ public class InstallationWizard {
 			return createRedicrectResponse();
 		}
 		ConfigurationDto cfg = integrator.createConfigurationStructure();
-
+		
 		return Response.ok(cfg).build();
 	}
-
+	
 	/**
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response saveConfig(ConfigurationDto newCfg)
-			throws FileNotFoundException, IOException, URISyntaxException {
+	public Response saveConfig(ConfigurationDto newCfg) throws FileNotFoundException, IOException,
+			URISyntaxException {
 		if (propsHelepr.exist(getPathToProperties(), PROPERTIES_FILE)) {
 			return createRedicrectResponse();
 		}
-
+		
 		Properties props = new Properties();
 		for (SectionDto section : newCfg.getSections()) {
 			for (ParamDto param : section.getParams()) {
@@ -122,30 +119,27 @@ public class InstallationWizard {
 					String value = param.getValue();
 					if (StringUtils.isNotBlank(value)) {
 						props.setProperty(param.getName(), value);
-						log.debug(String.format(
-								"Saving property '%s' with value '%s'.",
+						log.debug(String.format("Saving property '%s' with value '%s'.",
 								param.getName(), value));
 					}
 				}
 			}
 		}
-
-		propsHelepr.saveProperties(props, getPathToProperties(),
-				PROPERTIES_FILE);
-
+		
+		propsHelepr.saveProperties(props, getPathToProperties(), PROPERTIES_FILE);
+		
 		return createRedicrectResponse();
 	}
-
+	
 	private Response createRedicrectResponse() {
 		RedirectDto redirect = new RedirectDto();
 		redirect.setPath(integrator.getUriForRedirection().toString());
 		return Response.status(HTTP_PARTIAL_CONTENT).entity(redirect).build();
 	}
-
+	
 	private String getPathToProperties() {
-		return context.getRealPath("/") + "WEB-INF"
-				+ PropertiesHelper.SEPARATOR + "classes"
+		return context.getRealPath("/") + "WEB-INF" + PropertiesHelper.SEPARATOR + "classes"
 				+ PropertiesHelper.SEPARATOR + PROPERTIES_SUBPATH;
 	}
-
+	
 }
