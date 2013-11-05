@@ -117,12 +117,11 @@ public class InstallationWizard {
 			for (ParamDto param : section.getParams()) {
 				if (StringUtils.isNotBlank(param.getName())) {
 					String value = param.getValue();
-					if (value == null) {
-						value = "";
+					if (StringUtils.isNotBlank(value)) {
+						props.setProperty(param.getName(), value);
+						log.debug(String.format("Saving property '%s' with value '%s'.",
+								param.getName(), value));
 					}
-					props.setProperty(param.getName(), value);
-					log.debug(String.format("Saving property '%s' with value '%s'.",
-							param.getName(), value));
 				}
 			}
 		}
